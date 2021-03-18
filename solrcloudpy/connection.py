@@ -63,7 +63,7 @@ class SolrConnection(object):
         password=None,
         timeout=10,
         webappdir="solr",
-        version="7.7.0",
+        version="8.8.1",
         request_retries=1,
         use_https=False,
     ):
@@ -131,7 +131,7 @@ class SolrConnection(object):
         if "children" not in response["tree"][0]:
             return []
 
-        if response["tree"][0]["data"]["title"] == "/collections":
+        if "data" in response["tree"][0] and response["tree"][0]["data"]["title"] == "/collections":
             # solr 5.3 and older
             data = response["tree"][0]["children"]
         else:
