@@ -131,9 +131,21 @@ class SolrConnection(object):
         if "children" not in response["tree"][0]:
             return []
 
-        if "data" in response["tree"][0] and response["tree"][0]["data"]["title"] == "/collections":
+        if semver.match(self.version, "<5.4.0"):
             # solr 5.3 and older
             data = response["tree"][0]["children"]
+        elif semver.match(self.version, ">=8.0.0"):
+            data = None
+            for branch in response["tree"]:
+                if data is not None:
+                    break
+                for child in branch["children"]:
+                    if child["text"] == "/collections":
+                        if "children" not in child:
+                            return []
+                        else:
+                            data = child["children"]
+                            break
         else:
             # solr 5.4+
             data = None
@@ -149,7 +161,10 @@ class SolrConnection(object):
                             break
         colls = []
         if data:
-            colls = [node["data"]["title"] for node in data]
+            if semver.match(self.version, ">=8.0.0")
+                colls = [node["text"] for node in data]
+            else:
+                colls = [node["data"]["title"] for node in data]
         return colls
 
     def _list_cores(self):
