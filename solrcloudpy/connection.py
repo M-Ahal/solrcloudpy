@@ -128,37 +128,32 @@ class SolrConnection(object):
         params = {"detail": "false", "path": "/collections"}
         response = self.client.get(self.zk_path, params).result
 
-        if "children" not in response["tree"][0]:
-            return []
-
-        if semver.match(self.version, "<5.4.0"):
-            # solr 5.3 and older
-            data = response["tree"][0]["children"]
-        elif semver.match(self.version, ">=8.0.0"):
+        if semver.match(self.version, ">=8.0.0"):
             data = None
-            for branch in response["tree"]:
-                if data is not None:
-                    break
-                for child in branch["children"]:
-                    if child["text"] == "/collections":
-                        if "children" not in child:
-                            return []
-                        else:
-                            data = child["children"]
-                            break
+            if len(response['tree'][0])>0:
+                data = [x for x in response['tree'][0]['children']]
+            
         else:
-            # solr 5.4+
-            data = None
-            for branch in response["tree"]:
-                if data is not None:
-                    break
-                for child in branch["children"]:
-                    if child["data"]["title"] == "/collections":
-                        if "children" not in child:
-                            return []
-                        else:
-                            data = child["children"]
-                            break
+            if "children" not in response["tree"][0]:
+                return []
+
+            if semver.match(self.version, "<5.4.0"):
+                # solr 5.3 and older
+                data = response["tree"][0]["children"]
+            
+            else:
+                # solr 5.4+
+                data = None
+                for branch in response["tree"]:
+                    if data is not None:
+                        break
+                    for child in branch["children"]:
+                        if child["data"]["title"] == "/collections":
+                            if "children" not in child:
+                                return []
+                            else:
+                                data = child["children"]
+                                break
         colls = []
         if data:
             if semver.match(self.version, ">=8.0.0"):
