@@ -161,7 +161,7 @@ class SolrConnection(object):
                             break
         colls = []
         if data:
-            if semver.match(self.version, ">=8.0.0")
+            if semver.match(self.version, ">=8.0.0"):
                 colls = [node["text"] for node in data]
             else:
                 colls = [node["data"]["title"] for node in data]
