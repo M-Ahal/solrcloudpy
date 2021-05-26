@@ -164,6 +164,46 @@ class _Request(object):
             path, params=params, method="POST", body=body, asynchronous=asynchronous
         )
 
+    def put(self, path, params=None, body=None, asynchronous=False):
+        """
+        Puts an update request to Solr
+
+        :param path: the path to the collection
+        :type path: str
+        :param params: query params
+        :type params: dict
+        :param body: the request body, a json string
+        :type body: str
+        :param asynchronous: whether to perform the action asynchronously (only for collections API)
+        :type asynchronous: bool
+        :returns response: an instance of :class:`~solrcloudpy.utils.SolrResponse`
+        :rtype: SolrResponse
+        :raise: SolrException
+        """
+        return self.request(
+            path, params=params, method="PUT", body=body, asynchronous=asynchronous
+        )
+
+    def delete(self, path, params=None, body=None, asynchronous=False):
+        """
+        Delete request to Solr
+
+        :param path: the path to the collection
+        :type path: str
+        :param params: query params
+        :type params: dict
+        :param body: the request body, a json string
+        :type body: str
+        :param asynchronous: whether to perform the action asynchronously (only for collections API)
+        :type asynchronous: bool
+        :returns response: an instance of :class:`~solrcloudpy.utils.SolrResponse`
+        :rtype: SolrResponse
+        :raise: SolrException
+        """
+        return self.request(
+            path, params=params, method="DELETE", body=body, asynchronous=asynchronous
+        )
+
     def get(self, path, params=None, asynchronous=False):
         """
         Sends a get request to Solr

@@ -63,7 +63,7 @@ class SolrConnection(object):
         password=None,
         timeout=10,
         webappdir="solr",
-        version="7.7.0",
+        version="8.8.1",
         request_retries=1,
         use_https=False,
     ):
@@ -128,28 +128,38 @@ class SolrConnection(object):
         params = {"detail": "false", "path": "/collections"}
         response = self.client.get(self.zk_path, params).result
 
-        if "children" not in response["tree"][0]:
-            return []
-
-        if response["tree"][0]["data"]["title"] == "/collections":
-            # solr 5.3 and older
-            data = response["tree"][0]["children"]
-        else:
-            # solr 5.4+
+        if semver.match(self.version, ">=8.0.0"):
             data = None
-            for branch in response["tree"]:
-                if data is not None:
-                    break
-                for child in branch["children"]:
-                    if child["data"]["title"] == "/collections":
-                        if "children" not in child:
-                            return []
-                        else:
-                            data = child["children"]
-                            break
+            if len(response['tree'][0])>0:
+                data = [x for x in response['tree'][0]['children']]
+            
+        else:
+            if "children" not in response["tree"][0]:
+                return []
+
+            if semver.match(self.version, "<5.4.0"):
+                # solr 5.3 and older
+                data = response["tree"][0]["children"]
+            
+            else:
+                # solr 5.4+
+                data = None
+                for branch in response["tree"]:
+                    if data is not None:
+                        break
+                    for child in branch["children"]:
+                        if child["data"]["title"] == "/collections":
+                            if "children" not in child:
+                                return []
+                            else:
+                                data = child["children"]
+                                break
         colls = []
         if data:
-            colls = [node["data"]["title"] for node in data]
+            if semver.match(self.version, ">=8.0.0"):
+                colls = [node["text"] for node in data]
+            else:
+                colls = [node["data"]["title"] for node in data]
         return colls
 
     def _list_cores(self):

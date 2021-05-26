@@ -1,7 +1,9 @@
 """
 Get and modify schema
 """
+import json
 from solrcloudpy.utils import _Request
+
 
 
 class SolrSchema(object):
@@ -183,4 +185,36 @@ class SolrSchema(object):
         """
         return self.client.get(
             "%s/schema/copyfield/%s" % (self.collection_name, field)
+        ).result.dict
+
+    def add_synonym(self, syn_data:dict, language='english'):
+        """
+        Adds synonym into collection
+
+        :param syn_data: weighted synonym data {"error":["alert|1.0"]}
+        :type synonym: dict
+        :param lanuage: synonym language
+        :type language: str
+        :return: a dict relating information about added synonym
+        :rtype: dict
+        """
+        synonyms = json.dumps(syn_data)
+        return self.client.put(
+            "%s/schema/analysis/synonyms/%s" % (self.collection_name, language),
+            body=synonyms
+        ).result.dict
+
+    def delete_synonym(self, synonym, language="english"):
+        """
+        Deleted synonym into collection
+
+        :param synonym: name of synonym to delete
+        :type synonym: str
+        :param lanuage: synonym's language
+        :type language: str
+        :return: a dict relating information about added synonym
+        :rtype: dict
+        """
+        return self.client.delete(
+            "%s/schema/analysis/synonyms/%s/%s" % (self.collection_name, language, synonym)
         ).result.dict
