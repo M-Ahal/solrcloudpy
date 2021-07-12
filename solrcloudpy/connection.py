@@ -130,9 +130,11 @@ class SolrConnection(object):
 
         if semver.match(self.version, ">=8.0.0"):
             data = None
-            if len(response['tree'][0])>0:
+            if len(response['tree'][0]) > 0:
+                if "children" not in response["tree"][0]:
+                    return []
                 data = [x for x in response['tree'][0]['children']]
-            
+
         else:
             if "children" not in response["tree"][0]:
                 return []
@@ -140,7 +142,7 @@ class SolrConnection(object):
             if semver.match(self.version, "<5.4.0"):
                 # solr 5.3 and older
                 data = response["tree"][0]["children"]
-            
+
             else:
                 # solr 5.4+
                 data = None
