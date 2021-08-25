@@ -127,6 +127,9 @@ class _Request(object):
 
             except (ConnectionError, HTTPError) as e:
                 logger.exception("Failed to connect to server at %s. e=%s", host, e)
+                # Check for bad calls
+                if r is not None and 399 < r.status_code < 416:
+                    raise e
 
                 # Track retries, and take a server with too many retries out of the pool
                 retry_states[host] += 1
