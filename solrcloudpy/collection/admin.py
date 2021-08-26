@@ -3,6 +3,7 @@ Manage and administer a collection
 """
 import logging
 import time
+import uuid
 
 import requests
 
@@ -390,18 +391,24 @@ class SolrCollectionAdmin(CollectionBase):
             "RESTORE", backup_name, location=location, repository=repository
         )
 
-    def request_status(self, async_response):
+    def request_status(self, async_response=None, requestid=None):
         """
         Retrieves the status of a request for a given async result
         :param async_response: the response object that includes its async_id
         :type async_response: AsyncResponse
+        :param requestid: requestid in the response object for direct access
+        :type requestid: UUID or str
         :return:
         """
+        if not requestid:
+            requestid = async_response.async_id
+        if not isinstance(requestid, uuid.UUID):
+            requestid = uuid.UUID(requestid)
         return self.client.get(
             "admin/collections",
             {
                 "action": "REQUESTSTATUS",
-                "requestid": async_response.async_id,
+                "requestid": requestid,
                 "wt": "json",
             },
         ).result
