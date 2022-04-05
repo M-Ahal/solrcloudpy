@@ -331,7 +331,7 @@ class SolrCollectionAdmin(CollectionBase):
         return self.index_stats
 
     def _backup_restore_action(
-        self, action, backup_name, location=None, repository=None
+        self, action, backup_name, location=None, repository=None, max_num_backup_points=None,
     ):
         """
         Creates or restores a backup for a collection, based on the action
@@ -355,9 +355,12 @@ class SolrCollectionAdmin(CollectionBase):
         if repository:
             params["repository"] = repository
 
+        if max_num_backup_points:
+            params["maxNumBackupPoints"] = max_num_backup_points
+
         return self.client.get("admin/collections", params, asynchronous=True)
 
-    def backup(self, backup_name, location=None, repository=None):
+    def backup(self, backup_name, location=None, repository=None, max_num_backup_points=None):
         """
         Creates a backup for a collection
 
@@ -367,11 +370,16 @@ class SolrCollectionAdmin(CollectionBase):
         :type location: str
         :param repository: an optional param to define a repository type. filesystem is the default
         :type repository: str
+        :param max_num_backup_points: The upper-bound on how many backups should be retained at the backup location.
+        If the current number exceeds this bound, older backups will be deleted until only maxNumBackupPoints backups remain.
+        This parameter has no effect if incremental=false is specified.
+        :type max_num_backup_points: int
+        :type repository: str
         :return: an async response
         :rtype: AsyncResponse
         """
         return self._backup_restore_action(
-            "BACKUP", backup_name, location=location, repository=repository
+            "BACKUP", backup_name, location=location, repository=repository, max_num_backup_points=max_num_backup_points
         )
 
     def restore(self, backup_name, location=None, repository=None):
