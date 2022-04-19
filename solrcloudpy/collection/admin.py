@@ -382,6 +382,20 @@ class SolrCollectionAdmin(CollectionBase):
             "BACKUP", backup_name, location=location, repository=repository, max_num_backup_points=max_num_backup_points
         )
 
+    def list_backups(self, backup_name, location):
+        """
+        List Backups for a collection
+        :param backup_name: the name of the backup we will use for storage & restoration
+        :type backup_name: str
+        :param location: param to define where on the shared filesystem we should find the backup
+        :type location: str
+        :return: a list of backups
+        :rtype: dict
+        """
+        params = {"action": 'LISTBACKUP', "name": backup_name, "location": location}
+
+        return self.client.get("admin/collections", params)
+
     def restore(self, backup_name, location=None, repository=None):
         """
         Restores a backup for a collection
