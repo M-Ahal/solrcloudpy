@@ -67,7 +67,8 @@ class _Request(object):
 
         :param path: The relative path of the request
         :type path: str
-        :param params: The parameters of this request. Has to be an objects that implements `iteritems`. Most often this will be an instance :class:`~solrcloudpy.parameter.SearchOptions` or a dictionary
+        :param params: The parameters of this request. Has to be an objects that implements `iteritems`.
+                       Most often this will be an instance :class:`~solrcloudpy.parameter.SearchOptions` or a dictionary
         :type params: SearchOptions
         :type params: dict
         :param method: The request method, e.g. `GET`
@@ -307,7 +308,8 @@ class SolrResult(DictObject):
 class SolrResponse(object):
 
     """
-    A generic representation of a solr response. This objects contains both the `Response` object variable from the `requests` package and the parsed content in a :class:`~solrcloudpy.utils.SolrResult` instance.
+    A generic representation of a solr response. This objects contains both the `Response` object variable from the `requests` package and the parsed
+    content in a :class:`~solrcloudpy.utils.SolrResult` instance.
 
     """
 

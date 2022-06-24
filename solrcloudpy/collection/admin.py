@@ -331,7 +331,7 @@ class SolrCollectionAdmin(CollectionBase):
         return self.index_stats
 
     def _backup_restore_action(
-        self, action, backup_name, location=None, repository=None, max_num_backup_points=None,
+        self, action, backup_name, location=None, repository=None, max_num_backup_points=None, **kwargs
     ):
         """
         Creates or restores a backup for a collection, based on the action
@@ -357,6 +357,9 @@ class SolrCollectionAdmin(CollectionBase):
 
         if max_num_backup_points:
             params["maxNumBackupPoints"] = max_num_backup_points
+
+        for k, v in kwargs.items():
+            params[k] = v
 
         return self.client.get("admin/collections", params, asynchronous=True)
 
@@ -396,7 +399,7 @@ class SolrCollectionAdmin(CollectionBase):
 
         return self.client.get("admin/collections", params)
 
-    def restore(self, backup_name, location=None, repository=None):
+    def restore(self, backup_name, location=None, repository=None, **kwargs):
         """
         Restores a backup for a collection
 
@@ -410,7 +413,7 @@ class SolrCollectionAdmin(CollectionBase):
         :rtype: AsyncResponse
         """
         return self._backup_restore_action(
-            "RESTORE", backup_name, location=location, repository=repository
+            "RESTORE", backup_name, location=location, repository=repository, **kwargs
         )
 
     def request_status(self, async_response=None, requestid=None):
