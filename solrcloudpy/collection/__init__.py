@@ -39,7 +39,7 @@ from .search import SolrCollectionSearch
 
 
 class SolrCollection(SolrCollectionAdmin, SolrCollectionSearch):
-    def create(self, replication_factor=1, force=False, **kwargs):
+    def create(self, force=False, **kwargs):
         """
         Create a collection
 
@@ -63,8 +63,7 @@ class SolrCollection(SolrCollectionAdmin, SolrCollectionSearch):
 
         Additional parameters are further documented at https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-CreateaCollection
         """
-
-        admin = super(SolrCollection, self).create(replication_factor, force, **kwargs)
+        admin = super(SolrCollection, self).create(force, **kwargs)
         return SolrCollection(admin.connection, admin.name)
 
     def __repr__(self):

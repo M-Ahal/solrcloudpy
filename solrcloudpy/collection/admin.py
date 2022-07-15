@@ -39,51 +39,18 @@ class SolrCollectionAdmin(CollectionBase):
         """
         return self.name in self.connection.list()
 
-    def create(self, replication_factor=1, force=False, **kwargs):
-        """
-        Create a collection
-
-        :param replication_factor: an integer indicating the number of replcas for this collection
-        :type replication_factor: int
-
-        :param force: a boolean value indicating whether to force the operation
-        :type force: bool
-
-        :param kwargs: additional parameters to be passed to this operation
-
-        :Additional Parameters:
-          - `router_name`: router name that will be used. defines how documents will be distributed among the shards
-          - `num_shards`: number of shards to create for this collection
-          - `shards`: A comma separated list of shard names. Required when using the `implicit` router
-          - `max_shards_per_node`: max number of shards/replicas to put on a node for this collection
-          - `create_node_set`: Allows defining which nodes to spread the new collection across.
-          - `collection_config_name`: the name of the configuration to use for this collection
-          - `router_field`: if this field is specified, the router will look at the value of the field in an input document to compute the hash and identify of a shard instead of looking at the `uniqueKey` field
-          - `tlog_replicas` : the number of tlog replicas to create for this collection (solr 7.0+)
-          - `pull_replicas` : the number of pull replicas to create for this collection (solr 7.0+)
-          - `nrt_replicas` : the number of nrt replicas to create for this collection, by default solr creates NRT replicas if not defined. (solr 7.0+)
-          - `auto_add_replicas`
-
-        Additional parameters are further documented at https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-CreateaCollection
-        Please check the the collection management documentation for your specific version of solr to verify the arguments available.
-        """
+    def get_params(self, **kwargs):
         params = {
             "name": self.name,
-            "replicationFactor": replication_factor,
-            "action": "CREATE",
+            "replicationFactor": kwargs.get('replication_factor', 1),
+            "router.name": kwargs.get("router_name", "compositeId"),
+            "numShards": kwargs.get("num_shards", "1"),
+            "maxShardsPerNode": kwargs.get("max_shards_per_node", 1),
         }
-        router_name = kwargs.get("router_name", "compositeId")
-        params["router.name"] = router_name
-
-        num_shards = kwargs.get("num_shards", "1")
-        params["numShards"] = num_shards
 
         shards = kwargs.get("shards")
         if shards:
             params["shards"] = shards
-
-        max_shards_per_node = kwargs.get("max_shards_per_node", 1)
-        params["maxShardsPerNode"] = max_shards_per_node
 
         create_node_set = kwargs.get("create_node_set")
         if create_node_set:
@@ -112,6 +79,36 @@ class SolrCollectionAdmin(CollectionBase):
         auto_add_replicas = kwargs.get("auto_add_replicas")
         if auto_add_replicas:
             params["auto_add_replicas"] = auto_add_replicas
+
+        return params
+
+    def create(self, force=False, **kwargs):
+        """
+        Create a collection
+
+        :param force: a boolean value indicating whether to force the operation
+        :type force: bool
+
+        :param kwargs: additional parameters to be passed to this operation
+        :Additional Parameters:
+          - `replication_factor`: an integer indicating the number of replicas for this collection
+          - `router_name`: router name that will be used. defines how documents will be distributed among the shards
+          - `num_shards`: number of shards to create for this collection
+          - `shards`: A comma separated list of shard names. Required when using the `implicit` router
+          - `max_shards_per_node`: max number of shards/replicas to put on a node for this collection
+          - `create_node_set`: Allows defining which nodes to spread the new collection across.
+          - `collection_config_name`: the name of the configuration to use for this collection
+          - `router_field`: if this field is specified, the router will look at the value of the field in an input document to compute the hash and identify of a shard instead of looking at the `uniqueKey` field
+          - `tlog_replicas` : the number of tlog replicas to create for this collection (solr 7.0+)
+          - `pull_replicas` : the number of pull replicas to create for this collection (solr 7.0+)
+          - `nrt_replicas` : the number of nrt replicas to create for this collection, by default solr creates NRT replicas if not defined. (solr 7.0+)
+          - `auto_add_replicas`
+
+        Additional parameters are further documented at https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-CreateaCollection
+        Please check the the collection management documentation for your specific version of solr to verify the arguments available.
+        """
+        params = self.get_params(**kwargs)
+        params['action'] = "CREATE"
 
         # this collection doesn't exist yet, actually create it
         if not self.exists() or force:
@@ -331,7 +328,7 @@ class SolrCollectionAdmin(CollectionBase):
         return self.index_stats
 
     def _backup_restore_action(
-        self, action, backup_name, location=None, repository=None, max_num_backup_points=None, **kwargs
+            self, action, backup_name, location=None, repository=None, max_num_backup_points=None, **kwargs
     ):
         """
         Creates or restores a backup for a collection, based on the action
@@ -347,7 +344,10 @@ class SolrCollectionAdmin(CollectionBase):
         :return: an async response
         :rtype: AsyncResponse
         """
-        params = {"action": action, "collection": self.name, "name": backup_name}
+        params = self.get_params(**kwargs)
+        params['action'] = action
+        params['collection'] = self.name
+        params['name'] = backup_name
 
         if location:
             params["location"] = location
@@ -357,9 +357,6 @@ class SolrCollectionAdmin(CollectionBase):
 
         if max_num_backup_points:
             params["maxNumBackupPoints"] = max_num_backup_points
-
-        for k, v in kwargs.items():
-            params[k] = v
 
         return self.client.get("admin/collections", params, asynchronous=True)
 
