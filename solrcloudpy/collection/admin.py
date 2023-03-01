@@ -42,7 +42,7 @@ class SolrCollectionAdmin(CollectionBase):
     def get_params(self, **kwargs):
         params = {
             "name": self.name,
-            "replicationFactor": kwargs.get('replication_factor', 1),
+            "replicationFactor": kwargs.get("replication_factor", 1),
             "router.name": kwargs.get("router_name", "compositeId"),
             "numShards": kwargs.get("num_shards", "1"),
             "maxShardsPerNode": kwargs.get("max_shards_per_node", 1),
@@ -108,7 +108,7 @@ class SolrCollectionAdmin(CollectionBase):
         Please check the the collection management documentation for your specific version of solr to verify the arguments available.
         """
         params = self.get_params(**kwargs)
-        params['action'] = "CREATE"
+        params["action"] = "CREATE"
 
         # this collection doesn't exist yet, actually create it
         if not self.exists() or force:
@@ -328,7 +328,13 @@ class SolrCollectionAdmin(CollectionBase):
         return self.index_stats
 
     def _backup_restore_action(
-            self, action, backup_name, location=None, repository=None, max_num_backup_points=None, **kwargs
+        self,
+        action,
+        backup_name,
+        location=None,
+        repository=None,
+        max_num_backup_points=None,
+        **kwargs
     ):
         """
         Creates or restores a backup for a collection, based on the action
@@ -345,9 +351,9 @@ class SolrCollectionAdmin(CollectionBase):
         :rtype: AsyncResponse
         """
         params = self.get_params(**kwargs)
-        params['action'] = action
-        params['collection'] = self.name
-        params['name'] = backup_name
+        params["action"] = action
+        params["collection"] = self.name
+        params["name"] = backup_name
 
         if location:
             params["location"] = location
@@ -360,7 +366,9 @@ class SolrCollectionAdmin(CollectionBase):
 
         return self.client.get("admin/collections", params, asynchronous=True)
 
-    def backup(self, backup_name, location=None, repository=None, max_num_backup_points=None):
+    def backup(
+        self, backup_name, location=None, repository=None, max_num_backup_points=None
+    ):
         """
         Creates a backup for a collection
 
@@ -379,7 +387,11 @@ class SolrCollectionAdmin(CollectionBase):
         :rtype: AsyncResponse
         """
         return self._backup_restore_action(
-            "BACKUP", backup_name, location=location, repository=repository, max_num_backup_points=max_num_backup_points
+            "BACKUP",
+            backup_name,
+            location=location,
+            repository=repository,
+            max_num_backup_points=max_num_backup_points,
         )
 
     def list_backups(self, backup_name, location):
@@ -392,7 +404,7 @@ class SolrCollectionAdmin(CollectionBase):
         :return: a list of backups
         :rtype: dict
         """
-        params = {"action": 'LISTBACKUP', "name": backup_name, "location": location}
+        params = {"action": "LISTBACKUP", "name": backup_name, "location": location}
 
         return self.client.get("admin/collections", params)
 

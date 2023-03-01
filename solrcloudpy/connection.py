@@ -13,6 +13,7 @@ To get a :class:`~solrcloudpy.SolrCollection` instance from a :class:`SolrConnec
 
 
 """
+import uuid
 import json
 
 import semver
@@ -27,7 +28,6 @@ MAX_SUPPORTED_VERSION = "<=9.0.0"
 
 
 class SolrConnection(object):
-
     """
     Connection to a solr server or several ones
 
@@ -130,10 +130,10 @@ class SolrConnection(object):
 
         if semver.match(self.version, ">=8.0.0"):
             data = None
-            if len(response['tree'][0]) > 0:
+            if len(response["tree"][0]) > 0:
                 if "children" not in response["tree"][0]:
                     return []
-                data = [x for x in response['tree'][0]['children']]
+                data = [x for x in response["tree"][0]["children"]]
 
         else:
             if "children" not in response["tree"][0]:
@@ -236,6 +236,20 @@ class SolrConnection(object):
         return {"status": "NOT OK", "details": res}
 
     @property
+    def overseer_status(self):
+        """
+        Retrieves the status of a request for a given async result
+        :return:
+        """
+        return self.client.get(
+            "admin/collections",
+            {
+                "action": "OVERSEERSTATUS",
+                "wt": "json",
+            },
+        ).result
+
+    @property
     def cluster_leader(self):
         """
         Gets the cluster leader
@@ -310,3 +324,25 @@ class SolrConnection(object):
         :rtype: str
         """
         return "SolrConnection %s" % str(self.servers)
+
+    def delete_status(self, async_response=None, requestid=None):
+        """
+        Deletes the status of a request for a given async result
+        :param async_response: the response object that includes its async_id
+        :type async_response: AsyncResponse
+        :param requestid: requestid in the response object for direct access
+        :type requestid: UUID or str
+        :return:
+        """
+        if not requestid:
+            requestid = async_response.async_id
+        if not isinstance(requestid, uuid.UUID):
+            requestid = uuid.UUID(requestid)
+        return self.client.get(
+            "admin/collections",
+            {
+                "action": "DELETESTATUS",
+                "requestid": requestid,
+                "wt": "json",
+            },
+        ).result

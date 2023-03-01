@@ -5,7 +5,6 @@ import json
 from solrcloudpy.utils import _Request
 
 
-
 class SolrSchema(object):
     """
     Get and modify schema.
@@ -187,7 +186,7 @@ class SolrSchema(object):
             "%s/schema/copyfield/%s" % (self.collection_name, field)
         ).result.dict
 
-    def add_synonym(self, syn_data:dict, language='english'):
+    def add_synonym(self, syn_data: dict, language="english"):
         """
         Adds synonym into collection
 
@@ -201,7 +200,7 @@ class SolrSchema(object):
         synonyms = json.dumps(syn_data)
         return self.client.put(
             "%s/schema/analysis/synonyms/%s" % (self.collection_name, language),
-            body=synonyms
+            body=synonyms,
         ).result.dict
 
     def delete_synonym(self, synonym, language="english"):
@@ -216,5 +215,6 @@ class SolrSchema(object):
         :rtype: dict
         """
         return self.client.delete(
-            "%s/schema/analysis/synonyms/%s/%s" % (self.collection_name, language, synonym)
+            "%s/schema/analysis/synonyms/%s/%s"
+            % (self.collection_name, language, synonym)
         ).result.dict

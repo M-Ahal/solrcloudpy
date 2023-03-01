@@ -20,6 +20,7 @@ try:
             return value.encode("utf-8", "ignore")
 
         return value
+
 except NameError:
 
     def encodeUnicode(value):
@@ -297,7 +298,7 @@ class SolrResult(DictObject):
         :rtype: dict
         """
         res = {}
-        for (k, v) in iteritems(self.__dict__):
+        for k, v in iteritems(self.__dict__):
             if isinstance(v, SolrResult):
                 res[k] = v.dict
             else:

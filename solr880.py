@@ -1,9 +1,11 @@
 from solrcloudpy import *
 from solrcloudpy.collection import schema
-conn=SolrConnection(['dats.swordfishsecurity.ru:8983'])
+
+conn = SolrConnection(["dats.swordfishsecurity.ru:8983"])
 print(conn.list())
 
-test_data=["""
+test_data = [
+    """
 {
   "id" : 587605975,
   "content_t" : "I said this early, and I don’t know why it got lost.\r\nRather than adding more arguments, let’s just modify the job after `newJob` for the tests that need it. Honestly, I should have done the same for completion mode.",
@@ -26,9 +28,11 @@ test_data=["""
   "reference_s" : "0c8233b3b7068e0b3bddc470d5b5f83c",
   "source_s" : "github"
 }
-"""]
+"""
+]
 
-test_data=["""
+test_data = [
+    """
 {
   "id" : 587605975,
   "content_t" : "I said this early, and I don’t know why it got lost.\r\nRather than adding more arguments, let’s just modify the job after `newJob` for the tests that need it. Honestly, I should have done the same for completion mode.",
@@ -42,7 +46,8 @@ test_data=["""
   "reference_s" : "0c8233b3b7068e0b3bddc470d5b5f83c",
   "source_s" : "github"
 }
-"""]
+"""
+]
 
 # test1=conn['test1'].create(collection_config_name='venafi_configset')
 # print(conn['test1'].add(test_data))
@@ -50,7 +55,7 @@ test_data=["""
 
 # conn['test1'].drop()
 
-commentsScheme = schema.SolrSchema(conn,'test1')
+commentsScheme = schema.SolrSchema(conn, "test1")
 # syn_data={'test':['assert|1.0']}
 # print(commentsScheme.add_synonym(syn_data))
 print(commentsScheme.delete_synonym("test"))
