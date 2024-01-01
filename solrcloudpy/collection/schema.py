@@ -2,6 +2,9 @@
 Get and modify schema
 """
 import json
+from typing import Any
+
+from solrcloudpy import SolrConnection
 from solrcloudpy.utils import _Request
 
 
@@ -11,7 +14,7 @@ class SolrSchema(object):
     Uses the Schema API described in https://cwiki.apache.org/confluence/display/solr/Schema+API
     """
 
-    def __init__(self, connection, collection_name):
+    def __init__(self, connection: SolrConnection, collection_name: str) -> None:
         """
         :param connection: the connection to solr
         :type connection: SolrConnection
@@ -23,7 +26,7 @@ class SolrSchema(object):
         self.client = _Request(connection)
 
     @property
-    def schema(self):
+    def schema(self) -> dict[str, Any]:
         """
         Retrieves the schema as a dict
         :return: the schema dict
@@ -32,7 +35,7 @@ class SolrSchema(object):
         return self.client.get("%s/schema" % self.collection_name).result.dict
 
     @property
-    def name(self):
+    def name(self) -> str:
         """
         Retrieves the schema name as a dict
         :return: the schema name as a dict
@@ -150,7 +153,7 @@ class SolrSchema(object):
             "%s/schema/fieldtypes" % (self.collection_name)
         ).result.dict
 
-    def get_fieldtype(self, ftype):
+    def get_fieldtype(self, ftype: str):
         """
         Get information about a field type in the schema
 
@@ -173,7 +176,7 @@ class SolrSchema(object):
             "%s/schema/copyfields" % self.collection_name
         ).result.dict
 
-    def get_copyfield(self, field):
+    def get_copyfield(self, field: str):
         """
         Get information about a copy field in the schema
 

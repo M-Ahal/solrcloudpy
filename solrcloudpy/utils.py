@@ -2,6 +2,7 @@ import json
 import logging
 import random
 import uuid
+from typing import Any
 
 import requests
 from future.utils import iteritems
@@ -11,9 +12,10 @@ from requests.exceptions import ConnectionError, HTTPError
 try:
     from urllib.parse import urljoin
 except ImportError:
-    from urlparse import urljoin
+    from urllib.parse import urljoin
 try:
     str
+
 
     def encodeUnicode(value):
         if isinstance(value, str):
@@ -223,9 +225,7 @@ class _Request(object):
         :rtype: SolrResponse
         :raise: SolrException
         """
-        return self.request(
-            path, params=params, method="GET", asynchronous=asynchronous
-        )
+        return self.request(path, params=params, asynchronous=asynchronous)
 
 
 class CollectionBase(object):
@@ -285,12 +285,12 @@ class SolrResult(DictObject):
 
     """
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         value = SolrResponseJSONEncoder(indent=4).encode(self.__dict__)
         return value
 
     @property
-    def dict(self):
+    def dict(self) -> dict[str, Any]:
         """
         Convert this result into a python `dict` for easier manipulation
 
@@ -359,6 +359,7 @@ class AsyncResponse(SolrResponse):
         """
         # try to parse the content of this response as json
         # if that fails, try to save the text
+        super().__init__(response_obj)
         try:
             result = response_obj.json()
         except ValueError:
