@@ -1,0 +1,31 @@
+[tool.poetry]
+name = "solrcloudpy"
+version = "0.1.0"
+description = ""
+authors = ["Mehul Ahal <m.ahal@dimerce.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+requests = "*"
+ipython = "*"
+semver = "*"
+pathlib2 = "*"
+future = "*"
+
+
+[tool.poetry.group.dev.dependencies]
+black = "==19.10b0"
+pylint = "==2.4.4"
+pydocstyle = "*"
+pycodestyle = "*"
+isort = "*"
+coverage = "*"
+snapshottest = "*"
+freezegun = "*"
+django-stubs = "*"
+typing-extensions = "*"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
