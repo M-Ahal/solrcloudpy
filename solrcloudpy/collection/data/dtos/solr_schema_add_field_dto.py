@@ -2,7 +2,7 @@ from dataclasses import dataclass
 from typing import Any
 
 from solrcloudpy.collection.data.dtos.dto_utlils import to_class
-from solrcloudpy.collection.data.dtos.solr_schema_fields_info_dto import Field
+from solrcloudpy.collection.data.models.field_type_model_dto import Field
 
 
 @dataclass
