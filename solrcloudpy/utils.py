@@ -2,7 +2,7 @@ import json
 import logging
 import random
 import uuid
-from typing import Any
+from typing import Any, Dict
 
 import requests
 from future.utils import iteritems
@@ -290,12 +290,12 @@ class SolrResult(DictObject):
         return value
 
     @property
-    def dict(self) -> dict[str, Any]:
+    def dict(self) -> Dict[str, Any]:
         """
         Convert this result into a python `dict` for easier manipulation
 
         :return: a dict
-        :rtype: dict
+        :rtype: Dict[str, Any]
         """
         res = {}
         for k, v in iteritems(self.__dict__):

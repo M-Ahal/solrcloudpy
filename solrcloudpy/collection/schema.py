@@ -2,9 +2,12 @@
 Get and modify schema
 """
 import json
-from typing import Any
+from http import HTTPStatus
+from typing import Any, Optional, Dict
 
-from solrcloudpy.utils import _Request
+from requests import HTTPError
+
+from solrcloudpy.utils import _Request, logger
 
 
 class SolrSchema(object):
@@ -13,7 +16,7 @@ class SolrSchema(object):
     Uses the Schema API described in https://cwiki.apache.org/confluence/display/solr/Schema+API
     """
 
-    def __init__(self, connection, collection_name: str) -> None:
+    def __init__(self, connection, collection_name: str) -> None:  # type: ignore
         """
         :param connection: the connection to solr
         :type connection: SolrConnection
@@ -25,62 +28,74 @@ class SolrSchema(object):
         self.client = _Request(connection)
 
     @property
-    def schema(self) -> dict[str, Any]:
+    def schema(self) -> Dict[str, Any]:
         """
         Retrieves the schema as a dict
         :return: the schema dict
-        :rtype: dict
+        :rtype: Dict[str, Any]
         """
-        return self.client.get("%s/schema" % self.collection_name).result.dict
+        return dict[str, Any](self.client.get("%s/schema" % self.collection_name).result.dict['schema'])
 
     @property
     def name(self) -> str:
         """
-        Retrieves the schema name as a dict
-        :return: the schema name as a dict
-        :rtype: dict
+        Retrieves the schema name as a str
+        :return: the schema name as a str
+        :rtype: str
         """
-        return self.client.get("%s/schema/name" % self.collection_name).result.dict
+        return str(self.client.get("%s/schema/name" % self.collection_name).result.dict['name'])
 
     @property
-    def version(self):
+    def version(self) -> str:
         """
         Retrieves the schema version as a dict
-        :return: the schema version as a dict
-        :rtype: dict
+        :return: the schema version as a str
+        :rtype: str
         """
-        return self.client.get("%s/schema/version" % self.collection_name).result.dict
+        return str(self.client.get("%s/schema/version" % self.collection_name).result.dict['version'])
 
     @property
-    def unique_key(self):
+    def unique_key(self) -> Optional[str]:
         """
         Retrieves the schema's defined unique key as a dict
         :return: the schema unique key as a dict
         :rtype: dict
         """
-        return self.client.get("%s/schema/uniquekey" % self.collection_name).result.dict
+        try:
+            return str(self.client.get("%s/schema/uniquekey" % self.collection_name).result.dict['unique_key'])
+        except HTTPError as ex:
+            if ex.response.status_code == HTTPStatus.NOT_FOUND:
+                logger.warning('Could be due to not having a defined value. Returning None')
+                return None
+            raise ex
 
     @property
-    def similarity(self):
+    def similarity(self) -> str:
         """
-        Retrieves the schema's global similarity definition as a dict
-        :return: the schema global similarity definition as a dict
-        :rtype: dict
+        Retrieves the schema's global similarity definition as a str
+        :return: the schema global similarity definition as a str
+        :rtype: str
         """
-        return self.client.get(
+        return str(self.client.get(
             "%s/schema/similarity" % self.collection_name
-        ).result.dict
+        ).result.dict['similarity']['class'])
 
     @property
-    def default_operator(self):
+    def default_operator(self) -> Optional[str]:
         """
-        Retrieves the schema's defualt operator as a dict
-        :return: the schema default operator as a dict
-        :rtype: dict
+        Retrieves the schema's default operator as a str or None
+        :return: the schema default operator as a str or None
+        :rtype: Optional[str]
         """
-        return self.client.get(
-            "%s/schema/solrqueryparser/defaultoperator" % self.collection_name
-        ).result.dict
+        try:
+            return str(self.client.get(
+                "%s/schema/solrqueryparser/defaultoperator" % self.collection_name
+            ).result.dict['default_operator'])
+        except HTTPError as ex:
+            if ex.response.status_code == HTTPStatus.NOT_FOUND:
+                logger.warning('Could be due to not having a defined value. Returning None')
+                return None
+            raise ex
 
     def get_field(self, field):
         """
@@ -105,7 +120,7 @@ class SolrSchema(object):
         """
         return self.client.get("%s/schema/fields" % self.collection_name).result.dict
 
-    def add_fields(self, json_schema):
+    def add_fields(self, json_schema: str):
         """
         Add fields to the schema
 
@@ -149,7 +164,7 @@ class SolrSchema(object):
         :rtype: dict
         """
         return self.client.get(
-            "%s/schema/fieldtypes" % (self.collection_name)
+            "%s/schema/fieldtypes" % self.collection_name
         ).result.dict
 
     def get_fieldtype(self, ftype: str):
@@ -179,8 +194,8 @@ class SolrSchema(object):
         """
         Get information about a copy field in the schema
 
-        :param ftype: the name of the field type
-        :type ftype: str
+        :param field: the name of the field type
+        :type field: str
         :return: a dict relating information about a given copyfield
         :rtype: dict
         """
@@ -188,13 +203,13 @@ class SolrSchema(object):
             "%s/schema/copyfield/%s" % (self.collection_name, field)
         ).result.dict
 
-    def add_synonym(self, syn_data: dict, language="english"):
+    def add_synonym(self, syn_data: dict, language: str = "english"):
         """
         Adds synonym into collection
 
         :param syn_data: weighted synonym data {"error":["alert|1.0"]}
-        :type synonym: dict
-        :param lanuage: synonym language
+        :type syn_data: dict
+        :param language: synonym language
         :type language: str
         :return: a dict relating information about added synonym
         :rtype: dict
@@ -205,13 +220,13 @@ class SolrSchema(object):
             body=synonyms,
         ).result.dict
 
-    def delete_synonym(self, synonym, language="english"):
+    def delete_synonym(self, synonym: str, language: str = "english"):
         """
         Deleted synonym into collection
 
         :param synonym: name of synonym to delete
         :type synonym: str
-        :param lanuage: synonym's language
+        :param language: synonym's language
         :type language: str
         :return: a dict relating information about added synonym
         :rtype: dict

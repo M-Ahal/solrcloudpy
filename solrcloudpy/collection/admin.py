@@ -4,10 +4,11 @@ Manage and administer a collection
 import logging
 import time
 import uuid
+from typing import Any, Union
 
 import requests
 
-from solrcloudpy.utils import CollectionBase, SolrException
+from solrcloudpy.utils import CollectionBase, SolrException, SolrResponse, AsyncResponse
 
 from .schema import SolrSchema
 from .stats import SolrIndexStats
@@ -18,7 +19,7 @@ class SolrCollectionAdmin(CollectionBase):
     Manage and administer a collection
     """
 
-    def __init__(self, connection, name):
+    def __init__(self, connection, name: str) -> None:  # type: ignore
         """
         :param connection: the connection to Solr
         :type connection: SolrConnection
@@ -31,7 +32,7 @@ class SolrCollectionAdmin(CollectionBase):
         self._index_stats = None
         self._schema = None
 
-    def exists(self):
+    def exists(self) -> bool:
         """
         Finds if a collection exists in the cluster
         :return: whether a collection exists in the cluster
@@ -39,7 +40,7 @@ class SolrCollectionAdmin(CollectionBase):
         """
         return self.name in self.connection.list()
 
-    def get_params(self, **kwargs):
+    def get_params(self, **kwargs) -> dict[str, Any]:
         params = {
             "name": self.name,
             "replicationFactor": kwargs.get("replication_factor", 1),
@@ -82,7 +83,7 @@ class SolrCollectionAdmin(CollectionBase):
 
         return params
 
-    def create(self, force=False, **kwargs):
+    def create(self, force: bool = False, **kwargs):  # type: ignore
         """
         Create a collection
 
@@ -91,21 +92,25 @@ class SolrCollectionAdmin(CollectionBase):
 
         :param kwargs: additional parameters to be passed to this operation
         :Additional Parameters:
-          - `replication_factor`: an integer indicating the number of replicas for this collection
-          - `router_name`: router name that will be used. defines how documents will be distributed among the shards
-          - `num_shards`: number of shards to create for this collection
-          - `shards`: A comma separated list of shard names. Required when using the `implicit` router
-          - `max_shards_per_node`: max number of shards/replicas to put on a node for this collection
-          - `create_node_set`: Allows defining which nodes to spread the new collection across.
-          - `collection_config_name`: the name of the configuration to use for this collection
-          - `router_field`: if this field is specified, the router will look at the value of the field in an input document to compute the hash and identify of a shard instead of looking at the `uniqueKey` field
-          - `tlog_replicas` : the number of tlog replicas to create for this collection (solr 7.0+)
-          - `pull_replicas` : the number of pull replicas to create for this collection (solr 7.0+)
-          - `nrt_replicas` : the number of nrt replicas to create for this collection, by default solr creates NRT replicas if not defined. (solr 7.0+)
-          - `auto_add_replicas`
+            - `replication_factor`: an integer indicating the number of replicas for this collection
+            - `router_name`: router name that will be used. defines how documents will be distributed among the shards
+            - `num_shards`: number of shards to create for this collection
+            - `shards`: A comma separated list of shard names. Required when using the `implicit` router
+            - `max_shards_per_node`: max number of shards/replicas to put on a node for this collection
+            - `create_node_set`: Allows defining which nodes to spread the new collection across.
+            - `collection_config_name`: the name of the configuration to use for this collection
+            - `router_field`: if this field is specified, the router will look at the value of the field in an input
+                document to compute the hash and identify of a shard instead of looking at the `uniqueKey` field
+            - `tlog_replicas` : the number of tlog replicas to create for this collection (solr 7.0+)
+            - `pull_replicas` : the number of pull replicas to create for this collection (solr 7.0+)
+            - `nrt_replicas` : the number of nrt replicas to create for this collection, by default solr creates NRT
+                replicas if not defined. (solr 7.0+)
+            - `auto_add_replicas`
 
-        Additional parameters are further documented at https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-CreateaCollection
-        Please check the the collection management documentation for your specific version of solr to verify the arguments available.
+        Additional parameters are further documented at
+        https://cwiki.apache.org/confluence/display/solr/Collections+API#CollectionsAPI-CreateaCollection
+        Please check the collection management documentation for your specific version of solr to verify the arguments
+        available.
         """
         params = self.get_params(**kwargs)
         params["action"] = "CREATE"
@@ -130,7 +135,7 @@ class SolrCollectionAdmin(CollectionBase):
         # this collection is already present, just return it
         return SolrCollectionAdmin(self.connection, self.name)
 
-    def _is_index_created(self):
+    def _is_index_created(self) -> bool:
         """
         Whether the index was created
         :rtype: bool
@@ -139,7 +144,7 @@ class SolrCollectionAdmin(CollectionBase):
         req = requests.get("%s/solr/%s" % (server, self.name))
         return req.status_code == requests.codes.ok
 
-    def is_alias(self):
+    def is_alias(self) -> bool:
         """
         Determines if this collection is an alias for a 'real' collection
         :rtype: bool
@@ -151,7 +156,7 @@ class SolrCollectionAdmin(CollectionBase):
             return self.name in response["cluster"]["aliases"]
         return False
 
-    def drop(self):
+    def drop(self) -> SolrResponse:
         """
         Delete a collection
 
@@ -162,7 +167,7 @@ class SolrCollectionAdmin(CollectionBase):
             "admin/collections", {"action": "DELETE", "name": self.name}
         ).result
 
-    def reload(self):
+    def reload(self) -> SolrResponse:
         """
         Reload a collection
 
@@ -173,7 +178,7 @@ class SolrCollectionAdmin(CollectionBase):
             "admin/collections", {"action": "RELOAD", "name": self.name}
         ).result
 
-    def split_shard(self, shard, ranges=None, split_key=None):
+    def split_shard(self, shard: str, ranges: str = None, split_key: str = None) -> SolrResponse:
         """
         Split a shard into two new shards
 
@@ -193,7 +198,7 @@ class SolrCollectionAdmin(CollectionBase):
             params["split.key"] = split_key
         return self.client.get("admin/collections", params).result
 
-    def create_shard(self, shard, create_node_set=None):
+    def create_shard(self, shard: str, create_node_set: str = None) -> SolrResponse:
         """
         Create a new shard
 
@@ -209,7 +214,7 @@ class SolrCollectionAdmin(CollectionBase):
             params["create_node_set"] = create_node_set
         return self.client.get("admin/collections", params).result
 
-    def create_alias(self, alias):
+    def create_alias(self, alias: str) -> SolrResponse:
         """
         Create or modify an alias for a collection
 
@@ -221,7 +226,7 @@ class SolrCollectionAdmin(CollectionBase):
         params = {"action": "CREATEALIAS", "name": alias, "collections": self.name}
         return self.client.get("admin/collections", params).result
 
-    def delete_alias(self, alias):
+    def delete_alias(self, alias: str) -> SolrResponse:
         """
         Delete an alias for a collection
 
@@ -233,7 +238,7 @@ class SolrCollectionAdmin(CollectionBase):
         params = {"action": "DELETEALIAS", "name": alias}
         return self.client.get("admin/collections", params).result
 
-    def delete_replica(self, replica, shard):
+    def delete_replica(self, replica: str, shard: str) -> SolrResponse:
         """
         Delete a replica
 
@@ -253,7 +258,7 @@ class SolrCollectionAdmin(CollectionBase):
         return self.client.get("admin/collections", params).result
 
     @property
-    def state(self):
+    def state(self) -> dict[str, Any]:
         """
         Get the state of this collection
 
@@ -275,7 +280,7 @@ class SolrCollectionAdmin(CollectionBase):
             return {}
 
     @property
-    def shards(self):
+    def shards(self) -> dict[str, Any]:
         """
         See state method
         :rtype: dict
@@ -283,11 +288,11 @@ class SolrCollectionAdmin(CollectionBase):
         return self.state
 
     @property
-    def index_info(self):
+    def index_info(self) -> dict[str, Any]:
         """
         Get a high-level overview of this collection's index
         :return: information about an index
-        :rtype: dict
+        :rtype:
         """
         response = self.client.get("%s/admin/luke" % self.name, {}).result
         # XXX ugly
@@ -297,7 +302,7 @@ class SolrCollectionAdmin(CollectionBase):
         return data
 
     @property
-    def index_stats(self):
+    def index_stats(self) -> SolrIndexStats:
         """
         Retrieves the SolrIndexStats class
         :return: SolrIndexStats class
@@ -319,7 +324,7 @@ class SolrCollectionAdmin(CollectionBase):
         return self._schema
 
     @property
-    def stats(self):
+    def stats(self) -> SolrIndexStats:
         """
         Alias for retrieving the SolrIndexStats class
         :return: SolrIndexStats class
@@ -328,14 +333,14 @@ class SolrCollectionAdmin(CollectionBase):
         return self.index_stats
 
     def _backup_restore_action(
-        self,
-        action,
-        backup_name,
-        location=None,
-        repository=None,
-        max_num_backup_points=None,
-        **kwargs
-    ):
+            self,
+            action: str,
+            backup_name: str,
+            location: str = None,
+            repository: str = None,
+            max_num_backup_points: int = None,
+            **kwargs
+    ) -> AsyncResponse:
         """
         Creates or restores a backup for a collection, based on the action
 
@@ -367,8 +372,8 @@ class SolrCollectionAdmin(CollectionBase):
         return self.client.get("admin/collections", params, asynchronous=True)
 
     def backup(
-        self, backup_name, location=None, repository=None, max_num_backup_points=None
-    ):
+            self, backup_name: str, location: str = None, repository: str = None, max_num_backup_points: int = None
+    ) -> AsyncResponse:
         """
         Creates a backup for a collection
 
@@ -379,7 +384,8 @@ class SolrCollectionAdmin(CollectionBase):
         :param repository: an optional param to define a repository type. filesystem is the default
         :type repository: str
         :param max_num_backup_points: The upper-bound on how many backups should be retained at the backup location.
-        If the current number exceeds this bound, older backups will be deleted until only maxNumBackupPoints backups remain.
+        If the current number exceeds this bound, older backups will be deleted until only maxNumBackupPoints backups
+        remain.
         This parameter has no effect if incremental=false is specified.
         :type max_num_backup_points: int
         :type repository: str
@@ -394,7 +400,7 @@ class SolrCollectionAdmin(CollectionBase):
             max_num_backup_points=max_num_backup_points,
         )
 
-    def list_backups(self, backup_name, location):
+    def list_backups(self, backup_name: str, location: str) -> dict[str, Any]:
         """
         List Backups for a collection
         :param backup_name: the name of the backup we will use for storage & restoration
@@ -408,7 +414,7 @@ class SolrCollectionAdmin(CollectionBase):
 
         return self.client.get("admin/collections", params)
 
-    def restore(self, backup_name, location=None, repository=None, **kwargs):
+    def restore(self, backup_name: str, location: str = None, repository: str = None, **kwargs) -> AsyncResponse:
         """
         Restores a backup for a collection
 
@@ -425,29 +431,29 @@ class SolrCollectionAdmin(CollectionBase):
             "RESTORE", backup_name, location=location, repository=repository, **kwargs
         )
 
-    def request_status(self, async_response=None, requestid=None):
+    def request_status(self, async_response: AsyncResponse = None, request_id: Union[str, uuid] = None) -> SolrResponse:
         """
         Retrieves the status of a request for a given async result
         :param async_response: the response object that includes its async_id
         :type async_response: AsyncResponse
-        :param requestid: requestid in the response object for direct access
-        :type requestid: UUID or str
+        :param request_id: request_id in the response object for direct access
+        :type request_id: UUID or str
         :return:
         """
-        if not requestid:
-            requestid = async_response.async_id
-        if not isinstance(requestid, uuid.UUID):
-            requestid = uuid.UUID(requestid)
+        if not request_id:
+            request_id = async_response.async_id
+        if not isinstance(request_id, uuid.UUID):
+            request_id = uuid.UUID(request_id)
         return self.client.get(
             "admin/collections",
             {
                 "action": "REQUESTSTATUS",
-                "requestid": requestid,
+                "requestid": request_id,
                 "wt": "json",
             },
         ).result
 
-    def request_state(self, async_response):
+    def request_state(self, async_response: AsyncResponse):
         """
         Retrieves the request state of a request for a given async result
         :param async_response: the response object that includes its async_id

@@ -2,7 +2,9 @@
 Utilities to index large volumes of documents in Solr
 """
 import logging
+from collections.abc import Iterable
 from contextlib import contextmanager
+from typing import Any
 
 log = logging.getLogger("solrcloud")
 
@@ -16,7 +18,7 @@ class SolrBatchAdder(object):
     documents.
     """
 
-    def __init__(self, solr, batch_size=100, auto_commit=True):
+    def __init__(self, solr, batch_size: int = 100, auto_commit: bool = True) -> None:  # type: ignore
         """
         `batch_size` is 100 by default; different values may yield
         different performance characteristics, and this of course depends upon your average
@@ -38,7 +40,7 @@ class SolrBatchAdder(object):
         self.batch_size = batch_size
         self.auto_commit = auto_commit
 
-    def add_one(self, doc):
+    def add_one(self, doc: dict[str, Any]) -> None:
         """
         Add a single document to the batch adder, committing only
         if we've reached batch_size.
@@ -48,7 +50,7 @@ class SolrBatchAdder(object):
         """
         self._append_commit(doc)
 
-    def add_multi(self, docs_iter):
+    def add_multi(self, docs_iter: Iterable[dict[str, Any]]):
         """
         Iterate through `docs_iter`, appending each document to
         the batch adder, committing mid-way
@@ -61,7 +63,7 @@ class SolrBatchAdder(object):
         for doc in docs_iter:
             self._append_commit(doc)
 
-    def flush(self):
+    def flush(self) -> None:
         """
         Flush the batch queue of the batch adder; necessary after
         successive calls to `add_one` or `add_multi`.
@@ -93,7 +95,7 @@ class SolrBatchAdder(object):
         self.batch = list()
         self.batch_len = 0
 
-    def commit(self):
+    def commit(self) -> None:
         """Commit the current batch of documents"""
         try:
             self.solr.commit()
@@ -102,7 +104,7 @@ class SolrBatchAdder(object):
                 "SolrBatchAdder timed out when committing, but it's safe to ignore"
             )
 
-    def _append_commit(self, doc):
+    def _append_commit(self, doc: dict[str, Any]) -> None:
         """
         Adds a doc with an optional commit
         :param doc: the document we want to send to solr
@@ -113,7 +115,7 @@ class SolrBatchAdder(object):
             self.flush()
         self._add_to_batch(doc)
 
-    def _add_to_batch(self, doc):
+    def _add_to_batch(self, doc: dict[str, Any]):
         """
         Adds a document and tracks it within a batch context
 
@@ -123,13 +125,13 @@ class SolrBatchAdder(object):
         self.batch.append(doc)
         self.batch_len += 1
 
-    def __unicode__(self):
+    def __unicode__(self) -> str:
         fmt = "SolrBatchAdder(batch_size={batch_size},  batch_len={batch_len}, solr={solr}"
         return fmt.format(**vars(self))
 
 
 @contextmanager
-def solr_batch_adder(solr, batch_size=2000, auto_commit=False):
+def solr_batch_adder(solr, batch_size: int = 2000, auto_commit: bool = False) -> None:
     """
     A context manager for adding documents in solr
 
