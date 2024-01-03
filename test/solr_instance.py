@@ -7,7 +7,7 @@ from future.moves.urllib.request import urlopen
 
 
 class SolrInstance(object):
-    def __init__(self, name):
+    def __init__(self, name: str) -> None:
         """
         :param name: the name of the collection
         :type name: str
@@ -22,11 +22,11 @@ class SolrInstance(object):
 
         self.solr_jar_dir = self.solr_dir + "/server"
         self.zoo_data_2 = (
-            self.solr_dir + "/example/cloud/node1/solr/zoo_data/version-2/"
+                self.solr_dir + "/example/cloud/node1/solr/zoo_data/version-2/"
         )
         self.collection2_data = self.solr_dir + "/example/cloud/node2"
         self.conf_dir = (
-            self.solr_jar_dir + "/solr/configsets/data_driven_schema_configs/conf"
+                self.solr_jar_dir + "/solr/configsets/data_driven_schema_configs/conf"
         )
 
         if self.solr_dir:
@@ -44,7 +44,7 @@ class SolrInstance(object):
                 self.collection2_data = self.solr_jar_dir + "/solr/coll2*"
                 self.conf_dir = self.solr_jar_dir + "/solr/collection1/conf"
 
-    def start(self):
+    def start(self) -> None:
         if self.solr_dir:
             if self.solr_semver[0] == 4:
                 subprocess.Popen(["rm -rf %s" % self.zoo_data_2], shell=True)
@@ -71,7 +71,7 @@ class SolrInstance(object):
                     args=args, shell=True, cwd=self.solr_dir
                 )
 
-    def wait_ready(self):
+    def wait_ready(self) -> bool:
         if not self._process or self.solr_semver[0] == 4:
             sleeper = 0
             while True:
@@ -90,10 +90,10 @@ class SolrInstance(object):
             self._process.wait()
             return True
 
-    def flush(self):
+    def flush(self) -> None:
         pass
 
-    def terminate(self):
+    def terminate(self) -> None:
         if self.solr_dir:
             if self.solr_semver[0] == 4:
                 # this is too damn broad
