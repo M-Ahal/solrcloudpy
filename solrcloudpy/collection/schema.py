@@ -4,7 +4,6 @@ Get and modify schema
 import json
 from typing import Any
 
-from solrcloudpy import SolrConnection
 from solrcloudpy.utils import _Request
 
 
@@ -14,7 +13,7 @@ class SolrSchema(object):
     Uses the Schema API described in https://cwiki.apache.org/confluence/display/solr/Schema+API
     """
 
-    def __init__(self, connection: SolrConnection, collection_name: str) -> None:
+    def __init__(self, connection, collection_name: str) -> None:
         """
         :param connection: the connection to solr
         :type connection: SolrConnection

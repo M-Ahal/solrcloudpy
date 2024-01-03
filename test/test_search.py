@@ -10,7 +10,7 @@ solrprocess = None
 
 class TestCollectionSearch(unittest.TestCase):
     def setUp(self):
-        self.conn = SolrConnection(version=os.getenv("SOLR_VERSION", "6.1.0"))
+        self.conn = SolrConnection(version=os.getenv("SOLR_VERSION", "9.3.0"))
         self.collparams = {}
         confname = os.getenv("SOLR_CONFNAME", "")
         if confname != "":

@@ -25,6 +25,7 @@ snapshottest = "*"
 freezegun = "*"
 django-stubs = "*"
 typing-extensions = "*"
+mypy = "*"
 
 [build-system]
 requires = ["poetry-core"]
