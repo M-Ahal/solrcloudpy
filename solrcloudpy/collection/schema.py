@@ -3,10 +3,12 @@ Get and modify schema
 """
 import json
 from http import HTTPStatus
-from typing import Any, Optional, Dict
+from typing import Any, Optional, Dict, List
 
 from requests import HTTPError
 
+from solrcloudpy.collection.data.enums.field_type_class import FieldTypeClass
+from solrcloudpy.collection.data.models.field_type_model_dto import FieldTypeModelDto
 from solrcloudpy.utils import _Request, logger
 
 
@@ -157,28 +159,31 @@ class SolrSchema(object):
             "%s/schema/dynamicfield/%s" % (self.collection_name, field)
         ).result.dict
 
-    def get_fieldtypes(self):
+    def get_fieldtypes(self) -> List[FieldTypeModelDto]:
         """
         Get information about field types in the schema
         :return: a dict relating information about field types
         :rtype: dict
         """
-        return self.client.get(
-            "%s/schema/fieldtypes" % self.collection_name
-        ).result.dict
+        return [
+            FieldTypeModelDto.from_json(field_type)
+            for field_type in self.client.get(
+                "%s/schema/fieldtypes" % self.collection_name
+            ).result.dict['fieldTypes']
+        ]
 
-    def get_fieldtype(self, ftype: str):
+    def get_fieldtype(self, solr_field_type: FieldTypeClass) -> FieldTypeModelDto:
         """
         Get information about a field type in the schema
 
-        :param ftype: the name of the field type
-        :type ftype: str
+        :param solr_field_type: the name of the field type
+        :type solr_field_type: str
         :return: a dict relating information about a given field type
         :rtype: dict
         """
-        return self.client.get(
-            "%s/schema/fieldtypes/%s" % (self.collection_name, ftype)
-        ).result.dict
+        return FieldTypeModelDto.from_json(self.client.get(
+            "%s/schema/fieldtypes/%s" % (self.collection_name, str(solr_field_type))
+        ).result.dict['fieldType'])
 
     def get_copyfields(self):
         """
