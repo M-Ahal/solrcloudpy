@@ -82,7 +82,7 @@ class _Request(object):
         :type asynchronous: bool
 
         :returns response: an instance of :class:`~solrcloudpy.utils.SolrResponse`
-        :rtype: SolrResponse
+        :rtype: Union[AsyncResponse, SolrResponse]
         :raise: SolrException
         """
         headers = {}
@@ -112,6 +112,7 @@ class _Request(object):
         r = None
         while result is None:
             host = random.choice(servers)
+            # TODO(mehul): Add option to use 'v2' schema api
             fullpath = urljoin(host, path)
             try:
                 r = self.client.request(

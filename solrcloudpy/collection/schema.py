@@ -8,6 +8,7 @@ from typing import Any, Optional, Dict, List
 from requests import HTTPError
 
 from solrcloudpy.collection.data.enums.field_type_class import FieldTypeClass
+from solrcloudpy.collection.data.models.field_model_dto import FieldModelDto
 from solrcloudpy.collection.data.models.field_type_model_dto import FieldTypeModelDto
 from solrcloudpy.utils import _Request, logger
 
@@ -99,28 +100,32 @@ class SolrSchema(object):
                 return None
             raise ex
 
-    def get_field(self, field):
-        """
-        Get information about a field in the schema
-        TODO: looks like this API will change in newer versions of solr
+    # Doesn't work at all <- No endpoint
+    # def get_field(self, field):
+    #     """
+    #     Get information about a field in the schema
+    #     TODO: looks like this API will change in newer versions of solr
+    #
+    #     :param field: the name of the field
+    #     :type field: str
+    #     :return: a dict related to the field definition
+    #     :rtype: dict
+    #     """
+    #     return self.client.get(
+    #         "%s/schema/field/%s" % (self.collection_name, field)
+    #     ).result.dict
 
-        :param field: the name of the field
-        :type field: str
-        :return: a dict related to the field definition
-        :rtype: dict
-        """
-        return self.client.get(
-            "%s/schema/field/%s" % (self.collection_name, field)
-        ).result.dict
-
-    def get_fields(self):
+    def get_fields(self) -> List[FieldModelDto]:
         """
         Get information about all field in the schema
 
         :return: a dict of fields to their schema definitions
         :rtype: dict
         """
-        return self.client.get("%s/schema/fields" % self.collection_name).result.dict
+        return [
+            FieldModelDto.from_json(solr_field) for solr_field in
+            self.client.get("%s/schema/fields" % self.collection_name).result.dict['fields']
+        ]
 
     def add_fields(self, json_schema: str):
         """
