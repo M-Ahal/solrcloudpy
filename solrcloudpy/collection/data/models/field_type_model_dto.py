@@ -8,7 +8,8 @@ from solrcloudpy.collection.data.enums.field_type_class import FieldTypeClass
 @dataclass
 class FieldTypeModelDto:
     name: FieldTypeClass
-    type_class: str
+    # TODO(mehul): create (string: solr.String) enum when needing add-field-type api call
+    # type_class: str
     indexed: bool
     stored: bool
     doc_values: bool
@@ -18,15 +19,14 @@ class FieldTypeModelDto:
     def from_json(obj: Dict[str, Any]) -> 'FieldTypeModelDto':
         assert isinstance(obj, Dict)
         name = FieldTypeClass(from_str(obj.get("name")))
-        # TODO(mehul): create (string: solr.String) mapping or fetch from api
-        type_class = from_str(obj.get("class") or 'ignored')
+        # type_class = from_str(obj.get("class") or 'ignored')
         # Mirroring defaults def in
         # https://solr.apache.org/guide/solr/latest/indexing-guide/fields.html#optional-field-type-override-properties
         indexed = from_bool(obj.get("indexed") or True)
         doc_values = from_bool(obj.get("docValues") or True)
         stored = from_bool(obj.get("stored") or True)
         multi_valued = from_bool(obj.get("multiValued") or False)
-        return FieldTypeModelDto(name, type_class, indexed, stored, doc_values, multi_valued)
+        return FieldTypeModelDto(name, indexed, stored, doc_values, multi_valued)
 
     @staticmethod
     def from_field_model_json(obj: Dict[str, Any]) -> 'FieldTypeModelDto':
@@ -54,4 +54,4 @@ class FieldTypeModelDto:
         # if self.multi_valued and other.multi_valued:
         #     return self.name == other.name and self.type == other.type
 
-        return self.name == other.name and self.type_class == other.type_class
+        return self.name == other.name and self.name == other.name
