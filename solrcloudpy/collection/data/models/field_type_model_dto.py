@@ -31,21 +31,26 @@ class FieldTypeModelDto:
     @staticmethod
     def from_field_model_json(obj: Dict[str, Any]) -> 'FieldTypeModelDto':
         assert isinstance(obj, Dict)
-        # Delete the redundant ['name'] entry
-        # del obj['name']
         # Rename ['type'] with ['name']
         obj['name'] = obj.pop('type')
         return FieldTypeModelDto.from_json(obj)
 
-    # def to_json(self) -> dict[str, Any]:
-    #     return {
-    #         "name": from_str(self.type_name),
-    #         "class": from_str(self.solr_class),
-    #         "indexed": from_bool(self.indexed),
-    #         "stored": from_bool(self.stored),
-    #         "docValues": from_bool(self.doc_values),
-    #         "multiValued": from_bool(self.multi_valued)
-    #     }
+    def to_add_field_type_json(self) -> Dict[str, Dict[str, Any]]:
+        add_field_type_dto: Dict[str, Dict[str, Any]] = {
+            'add-field-type': {
+                'name': str(self.name),
+                # 'class': self.solr_class,
+                'indexed': self.indexed,
+                'stored': self.stored,
+                'docValues': self.doc_values,
+                'multiValued': self.multi_valued
+            }
+        }
+
+        non_null_fields = {k: v for k, v in add_field_type_dto['add-field-type'].items() if v is not None}
+        add_field_type_dto['add-field-type'].clear()
+        add_field_type_dto['add-field-type'].update(non_null_fields)
+        return add_field_type_dto
 
     def __eq__(self, other: object) -> bool:
         if not isinstance(other, type(self)):

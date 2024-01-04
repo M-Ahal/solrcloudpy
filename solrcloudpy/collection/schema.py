@@ -2,6 +2,8 @@
 Get and modify schema
 """
 import json
+from collections import ChainMap
+from collections.abc import Iterable
 from http import HTTPStatus
 from typing import Any, Optional, Dict, List
 
@@ -127,20 +129,28 @@ class SolrSchema(object):
             self.client.get("%s/schema/fields" % self.collection_name).result.dict['fields']
         ]
 
-    def add_fields(self, json_schema: str):
+    def add_fields(self, field_model_dtos: Iterable[FieldModelDto]) -> bool:
         """
         Add fields to the schema
-
-        :param json_schema: specs for the fields to add -- should be a json string
-        :type json_schema: str
-        :return: a dict representing the result of the update request
-        :rtype: dict
+        :param field_model_dtos: specs for the fields to add
+        :type field_model_dtos: Iterable[FieldModelDto]
+        :return: a success/failure result of the update request
+        :rtype: bool
         """
-        return self.client.update(
-            "%s/schema/fields" % self.collection_name, body=json_schema
-        ).result.dict
+        add_field_dtos: Dict[str, Dict[str, Any]] = dict(
+            ChainMap(*map(lambda dto: dto.to_add_field_json(), field_model_dtos))
+        )
+        try:
+            self.client.update(
+                "%s/schema/fields" % self.collection_name, body=str(add_field_dtos)
+            )
+            return True
+        except HTTPError as http_error:
+            if http_error.response.status_code == HTTPStatus.BAD_REQUEST:
+                return False
+            raise http_error
 
-    def get_dynamic_fields(self):
+    def get_dynamic_fields(self) -> Dict:
         """
         Get information about a dynamic field in the schema
         :return: a dict of dynamic fields to their schema definitions
@@ -150,7 +160,7 @@ class SolrSchema(object):
             "%s/schema/dynamicfields" % self.collection_name
         ).result.dict
 
-    def get_dynamic_field(self, field):
+    def get_dynamic_field(self, field) -> Dict:
         """
         Get information about a dynamic field in the schema
         TODO: this will change in later version of solr
