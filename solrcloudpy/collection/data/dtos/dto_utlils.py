@@ -39,4 +39,4 @@ def from_union(fs, x):  # type: ignore
 
 def to_class(c: Type[T], x: Any) -> dict[str, Any]:
     assert isinstance(x, c)
-    return cast(Any, x).to_json()  # type: ignore
+    return cast(Any, x).to_add_field_type_json()  # type: ignore

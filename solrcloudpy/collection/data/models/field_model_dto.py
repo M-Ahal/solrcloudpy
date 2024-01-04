@@ -17,6 +17,19 @@ class FieldModelDto:
         field_type_model = FieldTypeModelDto.from_field_model_json(obj=obj)
         return FieldModelDto(name, field_type_model)
 
+    def to_add_field_json(self) -> Dict[str, Dict[str, Any]]:
+        nested_dto = self.field_type_model.to_add_field_type_json()['add-field-type']
+        # Rename ['name'] with ['type']
+        nested_dto['type'] = nested_dto.pop('name')
+
+        combined_dto: Dict[str, Dict[str, Any]] = {
+            'add-field': {
+                'name': self.name
+            }
+        }
+        combined_dto['add-field'].update(nested_dto)
+        return combined_dto
+
     @property
     def is_internal(self) -> bool:
         return self.name.startswith('_')
