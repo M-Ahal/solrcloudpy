@@ -30,6 +30,13 @@ class FieldModelDto:
         combined_dto['add-field'].update(nested_dto)
         return combined_dto
 
+    def to_delete_field_json(self) -> Dict[str, Dict[str, Any]]:
+        return {
+            'delete-field': {
+                'name': self.name
+            }
+        }
+
     @property
     def is_internal(self) -> bool:
         return self.name.startswith('_')
