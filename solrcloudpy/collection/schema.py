@@ -3,9 +3,9 @@ Get and modify schema
 """
 import json
 from collections import ChainMap
-from collections.abc import Iterable
+from collections.abc import Iterable, MutableMapping
 from http import HTTPStatus
-from typing import Any, Optional, Dict, List
+from typing import Any, Optional, Dict, List, Final
 
 from requests import HTTPError
 
@@ -137,12 +137,39 @@ class SolrSchema(object):
         :return: a success/failure result of the update request
         :rtype: bool
         """
-        add_field_dtos: Dict[str, Dict[str, Any]] = dict(
-            ChainMap(*map(lambda dto: dto.to_add_field_json(), field_model_dtos))
-        )
+        add_field_mappings: Iterable[MutableMapping] = ChainMap(
+            *map(lambda dto: dto.to_add_field_json(), field_model_dtos)
+        ).maps
+        # Need to work in string-domain as adding dicts with the same key overwrites it
+        # noinspection DuplicatedCode
+        serialized_jsons: Final = ','.join([
+            str(add_field_mapping)[1:-1]
+            for add_field_mapping in add_field_mappings
+        ])
+
         try:
             self.client.update(
-                "%s/schema/fields" % self.collection_name, body=str(add_field_dtos)
+                "%s/schema/fields" % self.collection_name, body="{{{}}}".format(serialized_jsons)
+            )
+            return True
+        except HTTPError as http_error:
+            if http_error.response.status_code == HTTPStatus.BAD_REQUEST:
+                return False
+            raise http_error
+
+    def delete_fields(self, field_model_dtos: Iterable[FieldModelDto]) -> bool:
+        delete_field_mappings: Iterable[MutableMapping] = ChainMap(
+            *map(lambda dto: dto.to_delete_field_json(), field_model_dtos)
+        ).maps
+        # Need to work in string-domain as adding dicts with the same key overwrites it
+        # noinspection DuplicatedCode
+        serialized_jsons: Final = ','.join([
+            str(delete_field_mapping)[1:-1]
+            for delete_field_mapping in delete_field_mappings
+        ])
+        try:
+            self.client.update(
+                "%s/schema/fields" % self.collection_name, body="{{{}}}".format(serialized_jsons)
             )
             return True
         except HTTPError as http_error:
@@ -174,7 +201,7 @@ class SolrSchema(object):
             "%s/schema/dynamicfield/%s" % (self.collection_name, field)
         ).result.dict
 
-    def get_fieldtypes(self) -> List[FieldTypeModelDto]:
+    def get_field_types(self) -> List[FieldTypeModelDto]:
         """
         Get information about field types in the schema
         :return: a dict relating information about field types
@@ -187,7 +214,7 @@ class SolrSchema(object):
             ).result.dict['fieldTypes']
         ]
 
-    def get_fieldtype(self, solr_field_type: FieldTypeClass) -> FieldTypeModelDto:
+    def get_field_type(self, solr_field_type: FieldTypeClass) -> FieldTypeModelDto:
         """
         Get information about a field type in the schema
 
