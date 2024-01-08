@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Dict, Any
 
-from solrcloudpy.collection.data.dtos.dto_utlils import from_str
+from solrcloudpy.collection.data.models.dto_utlils import from_str
 from solrcloudpy.collection.data.models.field_type_model_dto import FieldTypeModelDto
 
 
