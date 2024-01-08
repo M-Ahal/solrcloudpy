@@ -3,7 +3,7 @@ name = "solrcloudpy"
 version = "0.1.0"
 description = ""
 authors = ["Mehul Ahal <m.ahal@dimerce.com>"]
-readme = "README.md"
+readme = "README.rst"
 
 [tool.poetry.dependencies]
 python = "^3.11"
@@ -26,6 +26,8 @@ freezegun = "*"
 django-stubs = "*"
 typing-extensions = "*"
 mypy = "*"
+setuptools = "*"
+types-requests = "*"
 
 [build-system]
 requires = ["poetry-core"]
