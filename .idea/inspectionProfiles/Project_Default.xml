@@ -1,0 +1,52 @@
+<component name="InspectionProjectProfileManager">
+  <profile version="1.0">
+    <option name="myName" value="Project Default" />
+    <inspection_tool class="CyclomaticComplexityJS" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="m_limit" value="10" />
+    </inspection_tool>
+    <inspection_tool class="FunctionNamingConventionJS" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="m_regex" value="[a-z][A-Za-z]*" />
+      <option name="m_minLength" value="4" />
+      <option name="m_maxLength" value="32" />
+    </inspection_tool>
+    <inspection_tool class="IncorrectFormatting" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
+    <inspection_tool class="JSClassNamingConvention" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="LocalVariableNamingConventionJS" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="m_regex" value="[a-z][A-Za-z]*" />
+      <option name="m_minLength" value="1" />
+      <option name="m_maxLength" value="32" />
+    </inspection_tool>
+    <inspection_tool class="OverlyComplexArithmeticExpressionJS" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="m_limit" value="6" />
+    </inspection_tool>
+    <inspection_tool class="OverlyComplexBooleanExpressionJS" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="m_limit" value="3" />
+    </inspection_tool>
+    <inspection_tool class="ParameterNamingConventionJS" enabled="true" level="WARNING" enabled_by_default="true">
+      <option name="m_regex" value="[a-z][A-Za-z]*" />
+      <option name="m_minLength" value="1" />
+      <option name="m_maxLength" value="32" />
+    </inspection_tool>
+    <inspection_tool class="PyArgumentEqualDefaultInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
+    <inspection_tool class="PyAugmentAssignmentInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
+    <inspection_tool class="PyBehaveInspection" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="PyClassicStyleClassInspection" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="PyMandatoryEncodingInspection" enabled="true" level="WARNING" enabled_by_default="true" />
+    <inspection_tool class="PyMissingTypeHintsInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true" />
+    <inspection_tool class="PyPep8Inspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="E302" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="PyPep8NamingInspection" enabled="true" level="WEAK WARNING" enabled_by_default="true">
+      <option name="ignoredErrors">
+        <list>
+          <option value="N802" />
+        </list>
+      </option>
+    </inspection_tool>
+    <inspection_tool class="TodoComment" enabled="true" level="TEXT ATTRIBUTES" enabled_by_default="true" editorAttributes="DUPLICATE_FROM_SERVER" />
+  </profile>
+</component>
