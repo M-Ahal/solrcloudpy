@@ -150,7 +150,7 @@ class SolrSchema(object):
                 return False
             raise http_error
 
-    def get_dynamic_fields(self) -> Dict:
+    def get_dynamic_fields(self) -> Dict[str, Any]:
         """
         Get information about a dynamic field in the schema
         :return: a dict of dynamic fields to their schema definitions
@@ -160,7 +160,7 @@ class SolrSchema(object):
             "%s/schema/dynamicfields" % self.collection_name
         ).result.dict
 
-    def get_dynamic_field(self, field) -> Dict:
+    def get_dynamic_field(self, field) -> Dict[str, Any]:
         """
         Get information about a dynamic field in the schema
         TODO: this will change in later version of solr
@@ -200,7 +200,7 @@ class SolrSchema(object):
             "%s/schema/fieldtypes/%s" % (self.collection_name, str(solr_field_type))
         ).result.dict['fieldType'])
 
-    def get_copyfields(self):
+    def get_copyfields(self) -> Dict[str, Any]:
         """
         Get information about all copy field in the schema
         :return: a dict describing the copyfields defined in the schema
@@ -210,7 +210,7 @@ class SolrSchema(object):
             "%s/schema/copyfields" % self.collection_name
         ).result.dict
 
-    def get_copyfield(self, field: str):
+    def get_copyfield(self, field: str) -> Dict[str, Any]:
         """
         Get information about a copy field in the schema
 
@@ -223,7 +223,7 @@ class SolrSchema(object):
             "%s/schema/copyfield/%s" % (self.collection_name, field)
         ).result.dict
 
-    def add_synonym(self, syn_data: dict, language: str = "english"):
+    def add_synonym(self, syn_data: dict, language: str = "english") -> Dict[str, Any]:
         """
         Adds synonym into collection
 
@@ -240,7 +240,7 @@ class SolrSchema(object):
             body=synonyms,
         ).result.dict
 
-    def delete_synonym(self, synonym: str, language: str = "english"):
+    def delete_synonym(self, synonym: str, language: str = "english") -> Dict[str, Any]:
         """
         Deleted synonym into collection
 
