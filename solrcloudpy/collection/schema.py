@@ -33,25 +33,30 @@ class SolrSchema(object):
         self.client = _Request(connection)
 
     @property
-    def schema(self) -> Dict[str, Any]:
+    async def schema(self) -> Dict[str, Any]:
         """
         Retrieves the schema as a dict
         :return: the schema dict
         :rtype: Dict[str, Any]
         """
-        return dict[str, Any](self.client.get("%s/schema" % self.collection_name).result.dict['schema'])
+        return dict[str, Any](
+            self.client.get("%s/schema" % self.collection_name).result.dict['schema'],
+            asynchronous=True
+        )
 
     @property
-    def name(self) -> str:
+    async def name(self) -> str:
         """
         Retrieves the schema name as a str
         :return: the schema name as a str
         :rtype: str
         """
-        return str(self.client.get("%s/schema/name" % self.collection_name).result.dict['name'])
+        return str(
+            self.client.get("%s/schema/name" % self.collection_name).result.dict['name']
+        )
 
     @property
-    def version(self) -> str:
+    async def version(self) -> str:
         """
         Retrieves the schema version as a dict
         :return: the schema version as a str
@@ -60,14 +65,18 @@ class SolrSchema(object):
         return str(self.client.get("%s/schema/version" % self.collection_name).result.dict['version'])
 
     @property
-    def unique_key(self) -> Optional[str]:
+    async def unique_key(self) -> Optional[str]:
         """
         Retrieves the schema's defined unique key as a dict
         :return: the schema unique key as a dict
         :rtype: dict
         """
         try:
-            return str(self.client.get("%s/schema/uniquekey" % self.collection_name).result.dict['unique_key'])
+            return str(
+                self.client.get(
+                    "%s/schema/uniquekey" % self.collection_name
+                ).result.dict['unique_key']
+            )
         except HTTPError as ex:
             if ex.response.status_code == HTTPStatus.NOT_FOUND:
                 logger.warning('Could be due to not having a defined value. Returning None')
@@ -75,27 +84,28 @@ class SolrSchema(object):
             raise ex
 
     @property
-    def similarity(self) -> str:
+    async def similarity(self) -> str:
         """
         Retrieves the schema's global similarity definition as a str
         :return: the schema global similarity definition as a str
         :rtype: str
         """
-        return str(self.client.get(
-            "%s/schema/similarity" % self.collection_name
-        ).result.dict['similarity']['class'])
+        return str(
+            self.client.get("%s/schema/similarity" % self.collection_name)
+            .result.dict['similarity']['class']
+        )
 
     @property
-    def default_operator(self) -> Optional[str]:
+    async def default_operator(self) -> Optional[str]:
         """
         Retrieves the schema's default operator as a str or None
         :return: the schema default operator as a str or None
         :rtype: Optional[str]
         """
         try:
-            return str(self.client.get(
-                "%s/schema/solrqueryparser/defaultoperator" % self.collection_name
-            ).result.dict['default_operator'])
+            return str(
+                self.client.get("%s/schema/solrqueryparser/defaultoperator" % self.collection_name)
+                .result.dict['default_operator'])
         except HTTPError as ex:
             if ex.response.status_code == HTTPStatus.NOT_FOUND:
                 logger.warning('Could be due to not having a defined value. Returning None')
@@ -117,7 +127,7 @@ class SolrSchema(object):
     #         "%s/schema/field/%s" % (self.collection_name, field)
     #     ).result.dict
 
-    def get_fields(self) -> List[FieldModelDto]:
+    async def get_fields(self) -> List[FieldModelDto]:
         """
         Get information about all field in the schema
 
@@ -129,7 +139,7 @@ class SolrSchema(object):
             self.client.get("%s/schema/fields" % self.collection_name).result.dict['fields']
         ]
 
-    def add_fields(self, field_model_dtos: Iterable[FieldModelDto]) -> bool:
+    async def add_fields(self, field_model_dtos: Iterable[FieldModelDto]) -> bool:
         """
         Add fields to the schema
         :param field_model_dtos: specs for the fields to add
@@ -148,16 +158,14 @@ class SolrSchema(object):
         ])
 
         try:
-            self.client.update(
-                "%s/schema/fields" % self.collection_name, body="{{{}}}".format(serialized_jsons)
-            )
+            self.client.update("%s/schema/fields" % self.collection_name,body="{{{}}}".format(serialized_jsons))
             return True
         except HTTPError as http_error:
             if http_error.response.status_code == HTTPStatus.BAD_REQUEST:
                 return False
             raise http_error
 
-    def delete_fields(self, field_model_dtos: Iterable[FieldModelDto]) -> bool:
+    async def delete_fields(self, field_model_dtos: Iterable[FieldModelDto]) -> bool:
         delete_field_mappings: Iterable[MutableMapping] = ChainMap(
             *map(lambda dto: dto.to_delete_field_json(), field_model_dtos)
         ).maps
@@ -168,9 +176,7 @@ class SolrSchema(object):
             for delete_field_mapping in delete_field_mappings
         ])
         try:
-            self.client.update(
-                "%s/schema/fields" % self.collection_name, body="{{{}}}".format(serialized_jsons)
-            )
+            self.client.update("%s/schema/fields" % self.collection_name, body="{{{}}}".format(serialized_jsons))
             return True
         except HTTPError as http_error:
             if http_error.response.status_code == HTTPStatus.BAD_REQUEST:
@@ -201,7 +207,7 @@ class SolrSchema(object):
             "%s/schema/dynamicfield/%s" % (self.collection_name, field)
         ).result.dict
 
-    def get_field_types(self) -> List[FieldTypeModelDto]:
+    async def get_field_types(self) -> List[FieldTypeModelDto]:
         """
         Get information about field types in the schema
         :return: a dict relating information about field types
@@ -209,12 +215,11 @@ class SolrSchema(object):
         """
         return [
             FieldTypeModelDto.from_json(field_type)
-            for field_type in self.client.get(
-                "%s/schema/fieldtypes" % self.collection_name
-            ).result.dict['fieldTypes']
+            for field_type in self.client.get("%s/schema/fieldtypes" % self.collection_name)
+            .result.dict['fieldTypes']
         ]
 
-    def get_field_type(self, solr_field_type: FieldTypeClass) -> FieldTypeModelDto:
+    async def get_field_type(self, solr_field_type: FieldTypeClass) -> FieldTypeModelDto:
         """
         Get information about a field type in the schema
 
