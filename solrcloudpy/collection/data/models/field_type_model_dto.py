@@ -62,7 +62,7 @@ class FieldTypeModelDto:
 
         return self.name == other.name and self.name == other.name
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         # Loop through the fields
         for defined_field in fields(self):
             # If there is a default and the value of the field is none we can assign a value
