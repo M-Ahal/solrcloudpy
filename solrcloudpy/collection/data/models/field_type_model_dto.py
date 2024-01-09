@@ -15,7 +15,7 @@ class FieldTypeModelDto:
     # type_class: str
     indexed: bool = field(default=True)
     stored: bool = field(default=True)
-    doc_values: bool = field(default=True)
+    doc_values: bool = field(default=False)
     multi_valued: bool = field(default=False)
 
     @staticmethod
@@ -23,10 +23,10 @@ class FieldTypeModelDto:
         assert isinstance(obj, Dict)
         name = FieldTypeClass(from_str(obj.get("name")))
         # type_class = from_str(obj.get("class") or 'ignored')
-        indexed = obj.get("indexed")
-        doc_values = obj.get("docValues")
-        stored = obj.get("stored")
-        multi_valued = obj.get("multiValued")
+        indexed = from_bool(obj.get("indexed") or True)
+        stored = from_bool(obj.get("stored") or True)
+        doc_values = from_bool(obj.get("docValues") or False)
+        multi_valued = from_bool(obj.get("multiValued") or False)
         return FieldTypeModelDto(name, indexed, stored, doc_values, multi_valued)
 
     @staticmethod
