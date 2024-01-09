@@ -171,7 +171,7 @@ class SolrSchema(object):
         # Need to work in string-domain as adding dicts with the same key overwrites it
         # noinspection DuplicatedCode
         serialized_jsons: Final = ','.join([
-            json.dumps(delete_field_mappings)[1:-1]
+            json.dumps(delete_field_mapping)[1:-1]
             for delete_field_mapping in delete_field_mappings
         ])
 
