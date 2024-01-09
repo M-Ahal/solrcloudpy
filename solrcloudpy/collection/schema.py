@@ -147,25 +147,18 @@ class SolrSchema(object):
         :return: a success/failure result of the update request
         :rtype: bool
         """
-        # add_field_mappings: Iterable[MutableMapping] = ChainMap(
-        #     *map(lambda dto: dto.to_add_field_json(), field_model_dtos)
-        # ).maps
-        # # Need to work in string-domain as adding dicts with the same key overwrites it
-        # # noinspection DuplicatedCode
-        # serialized_jsons: Final = ','.join([
-        #     json.dumps(add_field_mapping)[1:-1]
-        #     for add_field_mapping in add_field_mappings
-        # ])
-        add_field_dtos = [
-            dto.to_add_field_json()
-            for dto in field_model_dtos
-        ]
+        add_field_mappings: Iterable[MutableMapping] = ChainMap(
+            *map(lambda dto: dto.to_add_field_json(), field_model_dtos)
+        ).maps
+        # Need to work in string-domain as adding dicts with the same key overwrites it
+        # noinspection DuplicatedCode
+        serialized_jsons: Final = ','.join([
+            json.dumps(add_field_mapping)[1:-1]
+            for add_field_mapping in add_field_mappings
+        ])
 
         try:
-            # self.client.update("%s/schema/fields" % self.collection_name, body="{{{}}}".format(serialized_jsons))
-            for add_field_dto in add_field_dtos:
-                self.client.update("%s/schema/fields" % self.collection_name, body=json.dumps(add_field_dto))
-
+            self.client.update("%s/schema/fields" % self.collection_name, body="{{{}}}".format(serialized_jsons))
             return True
         except HTTPError as http_error:
             if http_error.response.status_code == HTTPStatus.BAD_REQUEST:
@@ -174,24 +167,18 @@ class SolrSchema(object):
 
     # noinspection DuplicatedCode
     async def delete_fields(self, field_model_dtos: Iterable[FieldModelDto]) -> bool:
-        # delete_field_mappings: Iterable[MutableMapping] = ChainMap(
-        #     *map(lambda dto: dto.to_delete_field_json(), field_model_dtos)
-        # ).maps
-        # # Need to work in string-domain as adding dicts with the same key overwrites it
-        # # noinspection DuplicatedCode
-        # serialized_jsons: Final = ','.join([
-        #     json.dumps(delete_field_mappings)[1:-1]
-        #     for delete_field_mapping in delete_field_mappings
-        # ])
-        delete_field_dtos = [
-            dto.to_add_field_json()
-            for dto in field_model_dtos
-        ]
+        delete_field_mappings: Iterable[MutableMapping] = ChainMap(
+            *map(lambda dto: dto.to_delete_field_json(), field_model_dtos)
+        ).maps
+        # Need to work in string-domain as adding dicts with the same key overwrites it
+        # noinspection DuplicatedCode
+        serialized_jsons: Final = ','.join([
+            json.dumps(delete_field_mapping)[1:-1]
+            for delete_field_mapping in delete_field_mappings
+        ])
 
         try:
-            # self.client.update("%s/schema/fields" % self.collection_name, body="{{{}}}".format(serialized_jsons))
-            for delete_field_dto in delete_field_dtos:
-                self.client.update("%s/schema/fields" % self.collection_name, body=json.dumps(delete_field_dto))
+            self.client.update("%s/schema/fields" % self.collection_name, body="{{{}}}".format(serialized_jsons))
             return True
         except HTTPError as http_error:
             if http_error.response.status_code == HTTPStatus.BAD_REQUEST:
