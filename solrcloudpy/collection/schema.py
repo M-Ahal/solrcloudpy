@@ -12,7 +12,7 @@ from requests import HTTPError
 from solrcloudpy.collection.data.enums.field_type_class import FieldTypeClass
 from solrcloudpy.collection.data.models.field_model_dto import FieldModelDto
 from solrcloudpy.collection.data.models.field_type_model_dto import FieldTypeModelDto
-from solrcloudpy.utils import _Request, logger
+from solrcloudpy.utils import _Request, logger, SolrException
 
 
 class SolrSchema(object):
@@ -77,11 +77,8 @@ class SolrSchema(object):
                     "%s/schema/uniquekey" % self.collection_name
                 ).result.dict['unique_key']
             )
-        except HTTPError as ex:
-            if ex.response.status_code == HTTPStatus.NOT_FOUND:
-                logger.warning('Could be due to not having a defined value. Returning None')
-                return None
-            raise ex
+        except SolrException:
+            logger.warning('Could be due to not having a defined value. Returning None')
 
     @property
     async def similarity(self) -> str:
