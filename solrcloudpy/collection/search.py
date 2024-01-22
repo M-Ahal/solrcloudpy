@@ -4,10 +4,14 @@ Query and update a Solr collection
 
 import datetime as dt
 import json
+from collections.abc import Iterable
+from types import MappingProxyType
+from typing import Any, Dict, Union
 
 from future.utils import iterkeys
 
-from solrcloudpy.utils import CollectionBase, SolrException, as_json_bool
+from solrcloudpy import SearchOptions
+from solrcloudpy.utils import CollectionBase, SolrException, as_json_bool, SolrResponse
 
 # todo this seems funky -- only called once
 dthandler = lambda obj: obj.isoformat() if isinstance(obj, dt.datetime) else None
@@ -25,7 +29,7 @@ class SolrCollectionSearch(CollectionBase):
         """
         return "SolrIndex<%s>" % self.name
 
-    def _get_response(self, path, params=None, method="GET", body=None):
+    def _get_response(self, path, params: Union[Dict[str, Any], SearchOptions] = None, method="GET", body=None):
         """
         Retrieves a response from the solr client
 
@@ -42,7 +46,7 @@ class SolrCollectionSearch(CollectionBase):
         """
         return self.client.request(path, params=params, method=method, body=body)
 
-    def _update(self, body, params=None):
+    def _update(self, body, params: Union[Dict[str, Any], SearchOptions] = None):
         """
         Sends and update request to the solr collection in JSON format
         :param body: the update JSON string
@@ -100,16 +104,25 @@ class SolrCollectionSearch(CollectionBase):
         """
         return self._get_response("%s/mlt" % self.name, params)
 
-    def add(self, docs, params=None):
+    # noinspection PyDefaultArgument
+    def add(
+            self,
+            docs: Iterable[Dict[str, Any]],
+            params: Union[Dict[str, Any], SearchOptions] = {}
+    ) -> SolrResponse:
         """
         Add a list of document to the collection
 
         :param docs: a list of documents to add
         :type docs: iterable<dict>
+        :param params: a list of documents to add
+        :type params: iterable<dict>
         :return: the response from Solr
         :rtype: SolrResponse
         :raise: SolrException
         """
+        if params is None:
+            params = dict()
         return self._update(json.dumps(docs, default=dthandler), params).result
 
     def delete(self, query, commit=True):
@@ -163,7 +176,7 @@ class SolrCollectionSearch(CollectionBase):
         }
         return self._get_response("%s/update" % self.name, params=params).result
 
-    def commit(self):
+    def commit(self) -> SolrResponse:
         """
         Commit changes to a collection
 

@@ -18,7 +18,7 @@ class SolrBatchAdder(object):
     documents.
     """
 
-    def __init__(self, solr, batch_size: int = 100, auto_commit: bool = True) -> None:  # type: ignore
+    def __init__(self, solr: SolrIndex, batch_size: int = 100, auto_commit: bool = True) -> None:  # type: ignore
         """
         `batch_size` is 100 by default; different values may yield
         different performance characteristics, and this of course depends upon your average

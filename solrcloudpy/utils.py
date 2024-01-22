@@ -2,12 +2,14 @@ import json
 import logging
 import random
 import uuid
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 import requests
 from future.utils import iteritems
 from requests.auth import HTTPBasicAuth
 from requests.exceptions import ConnectionError, HTTPError
+
+from solrcloudpy import SearchOptions
 
 try:
     from urllib.parse import urljoin
@@ -64,7 +66,7 @@ class _Request(object):
                 self.connection.user, self.connection.password
             )
 
-    def request(self, path, params=None, method="GET", body=None, asynchronous=False):
+    def request(self, path, params: Union[Dict[str, Any], SearchOptions] = None, method="GET", body=None, asynchronous=False):
         """
         Send a request to a collection
 
