@@ -8,7 +8,7 @@ from typing import Any, Dict, Union
 
 from future.utils import iterkeys
 
-from solrcloudpy.collection.data.abstracts.abstract_document_update_model import AbstractDocumentUpdateModel
+from solrcloudpy.collection.data.abstracts.abstract_document_update_model_dto import AbstractDocumentUpdateModelDto
 from solrcloudpy.utils import CollectionBase, SolrException, as_json_bool, SolrResponse
 
 # todo this seems funky -- only called once
@@ -105,7 +105,7 @@ class SolrCollectionSearch(CollectionBase):
     # noinspection PyDefaultArgument
     def add(
             self,
-            docs: AbstractDocumentUpdateModel,
+            docs: AbstractDocumentUpdateModelDto,
             params=None
     ) -> SolrResponse:
         """
