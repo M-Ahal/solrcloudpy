@@ -4,13 +4,11 @@ Query and update a Solr collection
 
 import datetime as dt
 import json
-from collections.abc import Iterable
-from types import MappingProxyType
 from typing import Any, Dict, Union
 
 from future.utils import iterkeys
 
-from solrcloudpy import SearchOptions
+from solrcloudpy.collection.data.abstracts.abstract_document_update_model import AbstractDocumentUpdateModel
 from solrcloudpy.utils import CollectionBase, SolrException, as_json_bool, SolrResponse
 
 # todo this seems funky -- only called once
@@ -29,7 +27,7 @@ class SolrCollectionSearch(CollectionBase):
         """
         return "SolrIndex<%s>" % self.name
 
-    def _get_response(self, path, params: Union[Dict[str, Any], SearchOptions] = None, method="GET", body=None):
+    def _get_response(self, path, params=None, method="GET", body=None):
         """
         Retrieves a response from the solr client
 
@@ -46,7 +44,7 @@ class SolrCollectionSearch(CollectionBase):
         """
         return self.client.request(path, params=params, method=method, body=body)
 
-    def _update(self, body, params: Union[Dict[str, Any], SearchOptions] = None):
+    def _update(self, body, params=None):
         """
         Sends and update request to the solr collection in JSON format
         :param body: the update JSON string
@@ -107,8 +105,8 @@ class SolrCollectionSearch(CollectionBase):
     # noinspection PyDefaultArgument
     def add(
             self,
-            docs: Iterable[Dict[str, Any]],
-            params: Union[Dict[str, Any], SearchOptions] = {}
+            docs: AbstractDocumentUpdateModel,
+            params=None
     ) -> SolrResponse:
         """
         Add a list of document to the collection
@@ -123,7 +121,7 @@ class SolrCollectionSearch(CollectionBase):
         """
         if params is None:
             params = dict()
-        return self._update(json.dumps(docs, default=dthandler), params).result
+        return self._update(json.dumps(docs.to_json(), default=dthandler), params).result
 
     def delete(self, query, commit=True):
         """
