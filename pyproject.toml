@@ -4,6 +4,9 @@ version = "0.1.0"
 description = ""
 authors = ["Mehul Ahal <m.ahal@dimerce.com>"]
 readme = "README.rst"
+packages = [
+    { include = "solrcloudpy" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.11"
